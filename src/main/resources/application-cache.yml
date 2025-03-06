@@ -1,0 +1,14 @@
+spring:
+  # 配置缓存
+  redis:
+    host: 192.168.179.124
+    port: 6379
+    database: 0
+    password: zhuyue123 # 配置redis密码
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 1
+    timeout: PT10S

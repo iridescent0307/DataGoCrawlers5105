@@ -1,0 +1,30 @@
+server:
+  port: 8082
+spring:
+  datasource:
+    druid:
+      username: root
+      password: zhuyuexingkong123
+      url: jdbc:mysql://192.168.179.124:3306/dataGo_db?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&serverTimezone=Asia/Shanghai
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      initialSize: 6
+      minIdle: 2
+      maxActive: 20
+      maxWait: 60000
+  profiles:
+    active: url,mq,xxl,cache # 激活其他配置文件，如果存在多个文件，以逗号分隔即可
+# mybatis配置
+mybatis:
+  mapper-locations: classpath:club/zhuyue/datago/mapper/*.xml  # 配置加载mapper.xml资源
+  type-aliases-package: club.zhuyue.datago.pojo.entity # 批量给实体类取别名，方便xml中直接使用别名，避免冗余配置
+  configuration:
+    map-underscore-to-camel-case: true # 开启驼峰映射 sys_user----SysUser
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 通过mybatis执行的sql以日志的方式输出到终端
+# 配置分页插件
+pagehelper:
+  helper-dialect: mysql # 配置分页的方言(数据库类型)
+  reasonable: true # 开启合理查询，比如总页数100，当查询101页时，自动查询最后一页，当查询-1页,默认查询第一页
+encoding:
+  charset: UTF-8
+  enabled: true
+  force: true

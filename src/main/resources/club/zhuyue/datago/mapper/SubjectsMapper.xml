@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="club.zhuyue.datago.mapper.SubjectsMapper">
+
+    <resultMap id="BaseResultMap" type="club.zhuyue.datago.pojo.entity.DataGoSubjects">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="episodesInfo" column="episodes_info" jdbcType="VARCHAR"/>
+        <result property="rate" column="rete" jdbcType="VARCHAR"/>
+        <result property="coverX" column="cover_x" jdbcType="BIGINT"/>
+        <result property="coverY" column="cover_y" jdbcType="BIGINT"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+        <result property="playable" column="playable" jdbcType="TINYINT"/>
+        <result property="cover" column="cover" jdbcType="VARCHAR"/>
+        <result property="isNew" column="is_new" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,episodes_info, rate , cover_x,
+        cover_y, title, url, playable,
+        cover, is_new
+    </sql>
+    <select id="getAllSubjects" resultType="club.zhuyue.datago.pojo.entity.DataGoSubjects">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM datago_subjects
+    </select>
+    <insert id="insertSubjects" keyColumn="id" keyProperty="id"
+            parameterType="club.zhuyue.datago.pojo.entity.DataGoSubjects" useGeneratedKeys="true">
+        INSERT INTO datago_subjects
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="episodesInfo != null">episodes_info,</if>
+            <if test="rate != null">rate,</if>
+            <if test="coverX != null">cover_x</if>
+            <if test="coverY != null">cover_y</if>
+            <if test="title != null">title</if>
+            <if test="url != null">url</if>
+            <if test="playable != null">playable</if>
+            <if test="cover != null">cover</if>
+            <if test="isNew != null">is_new</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id,jdbcType=BIGINT},</if>
+            <if test="episodesInfo != null">#{episodesInfo,jdbcType=VARCHAR},</if>
+            <if test="rate != null">#{rate,jdbcType=VARCHAR},</if>
+            <if test="coverX != null">#{coverX,jdbcType=BIGINT},</if>
+            <if test="coverY != null">#{coverY,jdbcType=BIGINT},</if>
+            <if test="title != null">#{title,jdbcType=VARCHAR},</if>
+            <if test="url != null">#{url,jdbcType=VARCHAR},</if>
+            <if test="playable != null">#{playable,jdbcType=TINYINT},</if>
+            <if test="cover != null">#{cover,jdbcType=VARCHAR},</if>
+            <if test="isNew != null">#{isNew,jdbcType=TINYINT}</if>
+        </trim>
+    </insert>
+
+
+</mapper>

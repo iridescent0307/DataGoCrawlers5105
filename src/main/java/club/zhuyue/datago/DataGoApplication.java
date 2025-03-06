@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DataGoDecentralizedWebCrawlerApplication {
+public class DataGoApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DataGoDecentralizedWebCrawlerApplication.class, args);
+        SpringApplication.run(DataGoApplication.class, args);
     }
 
 }
