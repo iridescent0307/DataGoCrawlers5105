@@ -1,0 +1,101 @@
+主体函数
+###
+public class DataGoCrawlersFlink {
+    public static void main(String[] args) throws Exception {
+
+        // 创建流式执行环境
+        StreamExecutionEnvironment env =
+                StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(4);
+
+        // 添加数据源
+        DataStreamSource<String> stream = env.addSource(new MyRedisSource());
+
+        // 处理数据
+        SingleOutputStreamOperator<UrlList> urlListSingleOutputStreamOperator = stream.flatMap(new MyFlatMapFunction( ));
+
+        urlListSingleOutputStreamOperator.addSink(new MySinkFunction());
+        env.execute();
+    }
+}
+###
+
+自定义Source函数
+###
+public class MyRedisSource implements SourceFunction<String> {
+    private boolean isRunning =true;
+    private Jedis jedis=null;
+    private final long SLEEP_MILLION=5000;
+
+    @Override
+    public void run(SourceContext<String> sourceContext) throws Exception {
+        this.jedis = new Jedis("127.0.0.1", 6379);
+        while(isRunning){
+            String url = null;
+            while (url ==null){
+                String randomDomain = jedis.srandmember(CrawlerConstants.CRAWLER_WEBSITE_DOMAINS_KEY);   
+                String key = randomDomain + CrawlerConstants.CRAWLER_DOMAIN_HIGHER_SUFFIX;                
+                url = jedis.lpop(key);
+                if(url == null) {   // 如果为null，则从低优先级中获取
+                    key = randomDomain + CrawlerConstants.CRAWLER_DOMAIN_LOWER_SUFFIX;    
+                    url = jedis.lpop(key);
+                }
+                CrawlerUtil.sleep(5000);
+            }
+
+
+            //System.out.println("---Flink source url");
+            sourceContext.collect(url);
+            //JedisUtil.returnJedis(jedis);
+        }
+    }
+
+    @Override
+    public void cancel() {
+        isRunning=false;
+        while(jedis!=null){
+            jedis.close();
+        }
+    }
+}
+###
+
+自定义Sink函数
+###
+public class MySinkFunction extends RichSinkFunction<UrlList> {
+
+    Jedis jedis = null;
+
+    public void open(Configuration parameters) throws Exception {
+        jedis = JedisUtil.getJedis();
+    }
+    public void invoke(UrlList value, Context context) {
+        List<String> high = value.getHighList();
+        List<String> low = value.getLowList();
+        if(!high.isEmpty()){
+            for(String url:high){
+                String domain = CrawlerUtil.getTopDomain(url);   // 获取url对应的顶级域名
+                String key = domain + CrawlerConstants.CRAWLER_DOMAIN_HIGHER_SUFFIX;            // 拼接url队列的key
+                jedis.lpush(key, url);
+            }
+
+        }
+        if(!low.isEmpty()){
+            for(String url:low){
+                String domain = CrawlerUtil.getTopDomain(url);   // 获取url对应的顶级域名，如jd.com
+                String key = domain + CrawlerConstants.CRAWLER_DOMAIN_LOWER_SUFFIX;            // 拼接url队列的key
+                jedis.lpush(key, url);
+            }
+
+        }
+
+    }
+    public void close() throws Exception {
+        super.close();
+        if(jedis != null){
+            JedisUtil.returnJedis(jedis);
+        }
+    }
+}
+###
+
